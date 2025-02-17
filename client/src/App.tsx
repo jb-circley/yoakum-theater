@@ -16,12 +16,19 @@ function Router() {
   return (
     <div className="min-h-screen bg-background">
       <Switch>
-        <Route path="/admin/:rest*">
+        <Route path="/admin">
           <AdminLayout>
-            <Switch>
-              <Route path="/admin" component={Dashboard} />
-              <Route component={NotFound} />
-            </Switch>
+            <Dashboard />
+          </AdminLayout>
+        </Route>
+        <Route path="/admin/movies">
+          <AdminLayout>
+            <div>Movies Management (Coming Soon)</div>
+          </AdminLayout>
+        </Route>
+        <Route path="/admin/showtimes">
+          <AdminLayout>
+            <div>Showtimes Management (Coming Soon)</div>
           </AdminLayout>
         </Route>
         <Route>

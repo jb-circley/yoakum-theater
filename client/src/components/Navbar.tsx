@@ -68,6 +68,9 @@ export default function Navbar() {
         </Sheet>
 
         <div className="flex flex-1 items-center justify-end space-x-4">
+          <Link href="/admin">
+            <Button variant="outline">Admin</Button>
+          </Link>
           <Button variant="default">Buy Tickets</Button>
         </div>
       </div>

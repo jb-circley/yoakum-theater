@@ -1,9 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Film, Calendar, Users } from "lucide-react";
+import { Film, Calendar } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { type Movie, type Showtime } from "@shared/schema";
 
 export default function Dashboard() {
+  console.log("Admin Dashboard component rendering"); // Debug log
+
   const { data: movies } = useQuery<Movie[]>({
     queryKey: ["/api/movies"],
   });
@@ -28,6 +30,9 @@ export default function Dashboard() {
   return (
     <div className="space-y-8">
       <h1 className="text-3xl font-bold">Dashboard</h1>
+      <div className="text-muted-foreground mb-4">
+        Admin Dashboard is loaded and ready
+      </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         {stats.map((stat) => (
