@@ -10,12 +10,15 @@ import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import AdminLayout from "@/pages/admin/AdminLayout";
 import Dashboard from "@/pages/admin/Dashboard";
+import MovieManagement from "@/pages/admin/MovieManagement";
+import ShowtimeManagement from "@/pages/admin/ShowtimeManagement";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <div className="min-h-screen bg-background">
       <Switch>
+        {/* Admin Routes */}
         <Route path="/admin">
           <AdminLayout>
             <Dashboard />
@@ -23,14 +26,16 @@ function Router() {
         </Route>
         <Route path="/admin/movies">
           <AdminLayout>
-            <div>Movies Management (Coming Soon)</div>
+            <MovieManagement />
           </AdminLayout>
         </Route>
         <Route path="/admin/showtimes">
           <AdminLayout>
-            <div>Showtimes Management (Coming Soon)</div>
+            <ShowtimeManagement />
           </AdminLayout>
         </Route>
+
+        {/* Public Routes */}
         <Route>
           <Navbar />
           <main className="container mx-auto px-4 py-8">
