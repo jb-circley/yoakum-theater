@@ -49,7 +49,7 @@ export default function Movies() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
           {movies?.map((movie) => (
             <div key={movie.id} className="max-w-[300px] mx-auto w-full">
               <MovieCard
