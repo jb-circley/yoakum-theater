@@ -48,6 +48,7 @@ export class MemStorage implements IStorage {
         trailerUrl: "https://www.youtube.com/watch?v=-5xzjw_0d_0",
         rating: "PG-13",
         duration: 120,
+        isComingSoon: false,
       },
       {
         title: "Captain America",
@@ -56,6 +57,7 @@ export class MemStorage implements IStorage {
         trailerUrl: "https://youtu.be/O_A8HdCDaWM",
         rating: "PG-13",
         duration: 150,
+        isComingSoon: false,
       },
       {
         title: "Minecraft: The Movie",
@@ -77,7 +79,38 @@ export class MemStorage implements IStorage {
       },
     ];
 
-    sampleMovies.forEach((movie) => this.createMovie(movie));
+    // Add some sample showtimes for non-coming-soon movies
+    sampleMovies.forEach((movie) => {
+      const createdMovie = this.createMovie(movie);
+
+      // Only add showtimes for movies that aren't coming soon
+      if (!movie.isComingSoon) {
+        // Add showtimes for the next 7 days
+        for (let i = 0; i < 7; i++) {
+          const date = new Date();
+          date.setDate(date.getDate() + i);
+
+          // Add two showtimes per day
+          const showtime1 = new Date(date);
+          showtime1.setHours(14, 0, 0); // 2:00 PM
+
+          const showtime2 = new Date(date);
+          showtime2.setHours(19, 0, 0); // 7:00 PM
+
+          this.createShowtime({
+            movieId: createdMovie.id,
+            showtime: showtime1,
+            price: 12.99,
+          });
+
+          this.createShowtime({
+            movieId: createdMovie.id,
+            showtime: showtime2,
+            price: 14.99,
+          });
+        }
+      }
+    });
   }
 
   async getMovies(): Promise<Movie[]> {

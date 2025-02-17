@@ -41,7 +41,7 @@ interface AddShowtimeFormData {
 
 function formatDate(date: string | Date | null): string {
   try {
-    if (!date) return "Invalid date";
+    if (!date) return "No date";
     const dateObj = typeof date === 'string' ? new Date(date) : date;
     if (isNaN(dateObj.getTime())) return "Invalid date";
     return format(dateObj, "MMM dd, yyyy");
@@ -52,7 +52,7 @@ function formatDate(date: string | Date | null): string {
 
 function formatTime(date: string | Date | null): string {
   try {
-    if (!date) return "Invalid time";
+    if (!date) return "No time";
     const dateObj = typeof date === 'string' ? new Date(date) : date;
     if (isNaN(dateObj.getTime())) return "Invalid time";
     return format(dateObj, "h:mm a");
@@ -69,7 +69,7 @@ function formatPrice(price: number | null | undefined): string {
 function AddShowtimeDialog({
   movieId,
   isOpen,
-  onClose
+  onClose,
 }: {
   movieId: number;
   isOpen: boolean;
@@ -79,8 +79,8 @@ function AddShowtimeDialog({
   const form = useForm<AddShowtimeFormData>({
     resolver: zodResolver(insertShowtimeSchema.omit({ movieId: true })),
     defaultValues: {
-      showtime: new Date().toISOString().slice(0, 16),
-      price: 10.00,
+      showtime: new Date(Date.now() + 3600000).toISOString().slice(0, 16), // Current time + 1 hour
+      price: 12.99,
     },
   });
 
@@ -178,7 +178,7 @@ function AddShowtimeDialog({
 function EditShowtimeDialog({
   showtime,
   isOpen,
-  onClose
+  onClose,
 }: {
   showtime: Showtime;
   isOpen: boolean;
