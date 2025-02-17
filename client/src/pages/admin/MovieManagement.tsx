@@ -32,24 +32,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Plus, Calendar } from "lucide-react";
-import { format, parseISO } from "date-fns";
-
-function formatShowtime(dateStr: string | Date) {
-  try {
-    if (dateStr instanceof Date) {
-      return isNaN(dateStr.getTime()) ? null : dateStr;
-    }
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) {
-      console.error("Invalid date format:", dateStr);
-      return null;
-    }
-    return date;
-  } catch (e) {
-    console.error("Error parsing date:", e);
-    return null;
-  }
-}
+import { format } from "date-fns";
 
 interface AddShowtimeFormData {
   showtime: string;
@@ -78,7 +61,7 @@ function AddShowtimeDialog({
     mutationFn: async (data: AddShowtimeFormData) => {
       const showtimeData: InsertShowtime = {
         movieId,
-        showtime: parseISO(data.showtime),
+        showtime: new Date(data.showtime),
         price: data.price,
       };
       await apiRequest("POST", "/api/showtimes", showtimeData);
@@ -256,37 +239,27 @@ export default function MovieManagement() {
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {showtimes.map((showtime) => {
-                                const date = formatShowtime(showtime.showtime);
-                                if (!date) {
-                                  console.error("Invalid showtime:", showtime);
-                                  return null;
-                                }
-
-                                return (
-                                  <TableRow key={showtime.id}>
-                                    <TableCell>
-                                      {format(date, "MMM dd, yyyy")}
-                                    </TableCell>
-                                    <TableCell>
-                                      {format(date, "h:mm a")}
-                                    </TableCell>
-                                    <TableCell>
-                                      ${typeof showtime.price === 'number' 
-                                        ? showtime.price.toFixed(2) 
-                                        : '0.00'}
-                                    </TableCell>
-                                    <TableCell className="text-right space-x-2">
-                                      <Button variant="outline" size="sm">
-                                        Edit
-                                      </Button>
-                                      <Button variant="outline" size="sm">
-                                        Delete
-                                      </Button>
-                                    </TableCell>
-                                  </TableRow>
-                                );
-                              })}
+                              {showtimes.map((showtime) => (
+                                <TableRow key={showtime.id}>
+                                  <TableCell>
+                                    {format(new Date(showtime.showtime), "MMM dd, yyyy")}
+                                  </TableCell>
+                                  <TableCell>
+                                    {format(new Date(showtime.showtime), "h:mm a")}
+                                  </TableCell>
+                                  <TableCell>
+                                    ${showtime.price.toFixed(2)}
+                                  </TableCell>
+                                  <TableCell className="text-right space-x-2">
+                                    <Button variant="outline" size="sm">
+                                      Edit
+                                    </Button>
+                                    <Button variant="outline" size="sm">
+                                      Delete
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
                             </TableBody>
                           </Table>
                         )}
