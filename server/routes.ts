@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertContactSchema } from "@shared/schema";
+import { insertContactSchema, insertShowtimeSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/movies", async (_req, res) => {
@@ -25,6 +25,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/movies/:id/showtimes", async (req, res) => {
     const showtimes = await storage.getShowtimesByMovie(Number(req.params.id));
     res.json(showtimes);
+  });
+
+  app.post("/api/showtimes", async (req, res) => {
+    const validatedData = insertShowtimeSchema.parse(req.body);
+    const showtime = await storage.createShowtime(validatedData);
+    res.status(201).json(showtime);
   });
 
   app.post("/api/contact", async (req, res) => {

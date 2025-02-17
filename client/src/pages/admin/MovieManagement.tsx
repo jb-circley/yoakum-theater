@@ -1,6 +1,10 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { type Movie, type Showtime } from "@shared/schema";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { type Movie, type Showtime, type InsertShowtime, insertShowtimeSchema } from "@shared/schema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import {
   Table,
   TableBody,
@@ -18,20 +22,24 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Plus, Calendar } from "lucide-react";
 import { format } from "date-fns";
 
 function formatShowtime(dateStr: string | Date) {
   try {
-    // First log the incoming date string for debugging
     console.log("Formatting date:", dateStr);
-
-    // If it's already a Date object, return it
     if (dateStr instanceof Date) {
       return isNaN(dateStr.getTime()) ? null : dateStr;
     }
-
-    // Try parsing the string
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) {
       console.error("Invalid date format:", dateStr);
@@ -44,8 +52,114 @@ function formatShowtime(dateStr: string | Date) {
   }
 }
 
+function AddShowtimeDialog({ 
+  movieId, 
+  isOpen, 
+  onClose 
+}: { 
+  movieId: number; 
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const { toast } = useToast();
+
+  const form = useForm<InsertShowtime>({
+    resolver: zodResolver(insertShowtimeSchema),
+    defaultValues: {
+      movieId,
+      showtime: new Date().toISOString().slice(0, 16),
+      price: 0,
+    },
+  });
+
+  const createShowtimeMutation = useMutation({
+    mutationFn: (data: InsertShowtime) => 
+      apiRequest("POST", "/api/showtimes", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/movies", movieId, "showtimes"] });
+      toast({
+        title: "Success",
+        description: "Showtime added successfully",
+      });
+      form.reset();
+      onClose();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add New Showtime</DialogTitle>
+          <DialogDescription>
+            Add a new showtime for this movie. Please enter the date, time, and price.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form 
+            onSubmit={form.handleSubmit((data) => createShowtimeMutation.mutate(data))} 
+            className="space-y-4"
+          >
+            <FormField
+              control={form.control}
+              name="showtime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date and Time</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="datetime-local"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Price ($)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      {...field}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex justify-end space-x-2">
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createShowtimeMutation.isPending}>
+                {createShowtimeMutation.isPending ? "Adding..." : "Add Showtime"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function MovieManagement() {
   const [selectedMovieId, setSelectedMovieId] = useState<number | null>(null);
+  const [showAddShowtime, setShowAddShowtime] = useState(false);
 
   const { data: movies, isLoading: moviesLoading } = useQuery<Movie[]>({
     queryKey: ["/api/movies"],
@@ -60,7 +174,6 @@ export default function MovieManagement() {
     return <div>Loading movies...</div>;
   }
 
-  // Debug log for showtimes data
   console.log("Showtimes data:", showtimes);
 
   return (
@@ -113,7 +226,10 @@ export default function MovieManagement() {
                         </DialogDescription>
                       </DialogHeader>
                       <div className="space-y-4">
-                        <Button size="sm">
+                        <Button 
+                          size="sm"
+                          onClick={() => setShowAddShowtime(true)}
+                        >
                           <Plus className="h-4 w-4 mr-2" />
                           Add Showtime
                         </Button>
@@ -183,6 +299,14 @@ export default function MovieManagement() {
           </TableBody>
         </Table>
       </div>
+
+      {selectedMovieId && (
+        <AddShowtimeDialog
+          movieId={selectedMovieId}
+          isOpen={showAddShowtime}
+          onClose={() => setShowAddShowtime(false)}
+        />
+      )}
     </div>
   );
 }
