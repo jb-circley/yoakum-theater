@@ -32,7 +32,7 @@ export default function Movies() {
       {selectedMovie ? (
         <div className="space-y-6">
           <div className="flex flex-col md:flex-row gap-6">
-            <div className="w-full md:w-1/3">
+            <div className="w-full md:w-1/3 max-w-[300px] mx-auto">
               <MovieCard
                 movie={selectedMovie}
                 onShowtimes={() => {}}
@@ -49,15 +49,16 @@ export default function Movies() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {movies?.map((movie) => (
-            <MovieCard
-              key={movie.id}
-              movie={movie}
-              onShowtimes={() => {
-                window.location.search = `?id=${movie.id}`;
-              }}
-            />
+            <div key={movie.id} className="max-w-[300px] mx-auto w-full">
+              <MovieCard
+                movie={movie}
+                onShowtimes={() => {
+                  window.location.search = `?id=${movie.id}`;
+                }}
+              />
+            </div>
           ))}
         </div>
       )}

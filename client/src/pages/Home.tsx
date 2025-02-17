@@ -18,10 +18,10 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {[...Array(3)].map((_, i) => (
           <div key={i} className="animate-pulse">
-            <div className="bg-muted rounded-lg aspect-[2/3]" />
+            <div className="bg-muted rounded-lg aspect-[2/3] max-w-[300px] mx-auto" />
           </div>
         ))}
       </div>
@@ -29,7 +29,7 @@ export default function Home() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       <section className="text-center space-y-4">
         <h1 className="text-4xl font-bold">Welcome to The Grand Theater</h1>
         <p className="text-xl text-muted-foreground">
@@ -39,26 +39,29 @@ export default function Home() {
 
       <section>
         <h2 className="text-2xl font-semibold mb-6">Now Showing</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {movies?.filter(m => !m.isComingSoon).map((movie) => (
-            <MovieCard
-              key={movie.id}
-              movie={movie}
-              onShowtimes={() => handleShowtimes(movie.id)}
-            />
+            <div key={movie.id} className="max-w-[300px] mx-auto w-full">
+              <MovieCard
+                movie={movie}
+                onShowtimes={() => handleShowtimes(movie.id)}
+              />
+            </div>
           ))}
         </div>
       </section>
 
       <section>
         <h2 className="text-2xl font-semibold mb-6">Coming Soon</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {movies?.filter(m => m.isComingSoon).map((movie) => (
-            <MovieCard
-              key={movie.id}
-              movie={movie}
-              onShowtimes={() => {}}
-            />
+            <div key={movie.id} className="max-w-[300px] mx-auto w-full">
+              <MovieCard
+                key={movie.id}
+                movie={movie}
+                onShowtimes={() => {}}
+              />
+            </div>
           ))}
         </div>
       </section>
