@@ -28,10 +28,25 @@ export const contacts = pgTable("contacts", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Create insert schemas with proper transformations
 export const insertMovieSchema = createInsertSchema(movies);
-export const insertShowtimeSchema = createInsertSchema(showtimes);
+
+export const insertShowtimeSchema = createInsertSchema(showtimes, {
+  showtime: z.union([z.string(), z.date()]).transform((val) => {
+    if (typeof val === 'string') {
+      const date = new Date(val);
+      if (isNaN(date.getTime())) {
+        throw new Error('Invalid date format');
+      }
+      return date;
+    }
+    return val;
+  }),
+});
+
 export const insertContactSchema = createInsertSchema(contacts).omit({ createdAt: true });
 
+// Export types
 export type Movie = typeof movies.$inferSelect;
 export type Showtime = typeof showtimes.$inferSelect;
 export type Contact = typeof contacts.$inferSelect;

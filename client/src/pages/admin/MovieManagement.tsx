@@ -20,7 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -32,11 +31,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Plus, Calendar } from "lucide-react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 function formatShowtime(dateStr: string | Date) {
   try {
-    console.log("Formatting date:", dateStr);
     if (dateStr instanceof Date) {
       return isNaN(dateStr.getTime()) ? null : dateStr;
     }
@@ -52,6 +50,11 @@ function formatShowtime(dateStr: string | Date) {
   }
 }
 
+interface AddShowtimeFormData {
+  showtime: string;
+  price: number;
+}
+
 function AddShowtimeDialog({ 
   movieId, 
   isOpen, 
@@ -62,19 +65,23 @@ function AddShowtimeDialog({
   onClose: () => void;
 }) {
   const { toast } = useToast();
-
-  const form = useForm<InsertShowtime>({
-    resolver: zodResolver(insertShowtimeSchema),
+  const form = useForm<AddShowtimeFormData>({
+    resolver: zodResolver(insertShowtimeSchema.omit({ movieId: true })),
     defaultValues: {
-      movieId,
       showtime: new Date().toISOString().slice(0, 16),
-      price: 0,
+      price: 10.00,
     },
   });
 
   const createShowtimeMutation = useMutation({
-    mutationFn: (data: InsertShowtime) => 
-      apiRequest("POST", "/api/showtimes", data),
+    mutationFn: async (data: AddShowtimeFormData) => {
+      const showtimeData: InsertShowtime = {
+        movieId,
+        showtime: parseISO(data.showtime),
+        price: data.price,
+      };
+      await apiRequest("POST", "/api/showtimes", showtimeData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/movies", movieId, "showtimes"] });
       toast({
@@ -174,8 +181,6 @@ export default function MovieManagement() {
     return <div>Loading movies...</div>;
   }
 
-  console.log("Showtimes data:", showtimes);
-
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -208,16 +213,6 @@ export default function MovieManagement() {
                 </TableCell>
                 <TableCell className="text-right space-x-2">
                   <Dialog>
-                    <DialogTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => setSelectedMovieId(movie.id)}
-                      >
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Showtimes
-                      </Button>
-                    </DialogTrigger>
                     <DialogContent className="max-w-3xl">
                       <DialogHeader>
                         <DialogTitle>Manage Showtimes - {movie.title}</DialogTitle>
@@ -228,7 +223,10 @@ export default function MovieManagement() {
                       <div className="space-y-4">
                         <Button 
                           size="sm"
-                          onClick={() => setShowAddShowtime(true)}
+                          onClick={() => {
+                            setSelectedMovieId(movie.id);
+                            setShowAddShowtime(true);
+                          }}
                         >
                           <Plus className="h-4 w-4 mr-2" />
                           Add Showtime
