@@ -55,6 +55,24 @@ export class MemStorage implements IStorage {
         rating: "PG-13",
         duration: 150,
       },
+      {
+        title: "Minecraft: The Movie",
+        description: "An epic adventure in the world of blocks",
+        posterUrl: "https://static.wixstatic.com/media/93182a_8a1c12156041414299fa0e1e501c98f8~mv2.jpeg",
+        trailerUrl: null,
+        rating: "PG",
+        duration: 110,
+        isComingSoon: true,
+      },
+      {
+        title: "Snow White",
+        description: "A magical tale retold",
+        posterUrl: "https://static.wixstatic.com/media/93182a_bad4ac5b108a41ada5e3e78ae3300671~mv2.jpeg",
+        trailerUrl: null,
+        rating: "PG",
+        duration: 115,
+        isComingSoon: true,
+      },
     ];
 
     sampleMovies.forEach((movie) => this.createMovie(movie));

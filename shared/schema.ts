@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp, real } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, real, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -10,6 +10,7 @@ export const movies = pgTable("movies", {
   trailerUrl: text("trailer_url"),
   rating: text("rating").notNull(),
   duration: integer("duration").notNull(),
+  isComingSoon: boolean("is_coming_soon").default(false).notNull(),
 });
 
 export const showtimes = pgTable("showtimes", {
