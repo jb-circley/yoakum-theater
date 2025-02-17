@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -213,6 +214,16 @@ export default function MovieManagement() {
                 </TableCell>
                 <TableCell className="text-right space-x-2">
                   <Dialog>
+                    <DialogTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setSelectedMovieId(movie.id)}
+                      >
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Showtimes
+                      </Button>
+                    </DialogTrigger>
                     <DialogContent className="max-w-3xl">
                       <DialogHeader>
                         <DialogTitle>Manage Showtimes - {movie.title}</DialogTitle>
@@ -223,10 +234,7 @@ export default function MovieManagement() {
                       <div className="space-y-4">
                         <Button 
                           size="sm"
-                          onClick={() => {
-                            setSelectedMovieId(movie.id);
-                            setShowAddShowtime(true);
-                          }}
+                          onClick={() => setShowAddShowtime(true)}
                         >
                           <Plus className="h-4 w-4 mr-2" />
                           Add Showtime
