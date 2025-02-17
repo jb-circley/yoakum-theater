@@ -66,12 +66,12 @@ function formatPrice(price: number | null | undefined): string {
   return `$${price.toFixed(2)}`;
 }
 
-function AddShowtimeDialog({ 
-  movieId, 
-  isOpen, 
-  onClose 
-}: { 
-  movieId: number; 
+function AddShowtimeDialog({
+  movieId,
+  isOpen,
+  onClose
+}: {
+  movieId: number;
   isOpen: boolean;
   onClose: () => void;
 }) {
@@ -121,8 +121,8 @@ function AddShowtimeDialog({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form 
-            onSubmit={form.handleSubmit((data) => createShowtimeMutation.mutate(data))} 
+          <form
+            onSubmit={form.handleSubmit((data) => createShowtimeMutation.mutate(data))}
             className="space-y-4"
           >
             <FormField
@@ -175,9 +175,119 @@ function AddShowtimeDialog({
   );
 }
 
+function EditShowtimeDialog({
+  showtime,
+  isOpen,
+  onClose
+}: {
+  showtime: Showtime;
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const { toast } = useToast();
+  const form = useForm<AddShowtimeFormData>({
+    resolver: zodResolver(insertShowtimeSchema.omit({ movieId: true })),
+    defaultValues: {
+      showtime: new Date(showtime.showtime).toISOString().slice(0, 16),
+      price: showtime.price,
+    },
+  });
+
+  const updateShowtimeMutation = useMutation({
+    mutationFn: async (data: AddShowtimeFormData) => {
+      const showtimeData = {
+        showtime: new Date(data.showtime),
+        price: data.price,
+      };
+      await apiRequest("PATCH", `/api/showtimes/${showtime.id}`, showtimeData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/movies", showtime.movieId, "showtimes"] });
+      toast({
+        title: "Success",
+        description: "Showtime updated successfully",
+      });
+      form.reset();
+      onClose();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Showtime</DialogTitle>
+          <DialogDescription>
+            Update the showtime details.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit((data) => updateShowtimeMutation.mutate(data))}
+            className="space-y-4"
+          >
+            <FormField
+              control={form.control}
+              name="showtime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date and Time</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="datetime-local"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Price ($)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      {...field}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex justify-end space-x-2">
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={updateShowtimeMutation.isPending}>
+                {updateShowtimeMutation.isPending ? "Updating..." : "Update Showtime"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function MovieManagement() {
   const [selectedMovieId, setSelectedMovieId] = useState<number | null>(null);
   const [showAddShowtime, setShowAddShowtime] = useState(false);
+  const [editingShowtime, setEditingShowtime] = useState<Showtime | null>(null);
+  const { toast } = useToast();
 
   const { data: movies, isLoading: moviesLoading } = useQuery<Movie[]>({
     queryKey: ["/api/movies"],
@@ -187,6 +297,32 @@ export default function MovieManagement() {
     queryKey: ["/api/movies", selectedMovieId, "showtimes"],
     enabled: !!selectedMovieId,
   });
+
+  const deleteShowtimeMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/showtimes/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/movies", selectedMovieId, "showtimes"] });
+      toast({
+        title: "Success",
+        description: "Showtime deleted successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteShowtime = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this showtime?")) {
+      deleteShowtimeMutation.mutate(id);
+    }
+  };
 
   if (moviesLoading) {
     return <div>Loading movies...</div>;
@@ -225,8 +361,8 @@ export default function MovieManagement() {
                 <TableCell className="text-right space-x-2">
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => setSelectedMovieId(movie.id)}
                       >
@@ -242,7 +378,7 @@ export default function MovieManagement() {
                         </DialogDescription>
                       </DialogHeader>
                       <div className="space-y-4">
-                        <Button 
+                        <Button
                           size="sm"
                           onClick={() => setShowAddShowtime(true)}
                         >
@@ -278,10 +414,19 @@ export default function MovieManagement() {
                                     {formatPrice(showtime.price)}
                                   </TableCell>
                                   <TableCell className="text-right space-x-2">
-                                    <Button variant="outline" size="sm">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setEditingShowtime(showtime)}
+                                    >
                                       Edit
                                     </Button>
-                                    <Button variant="outline" size="sm">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleDeleteShowtime(showtime.id)}
+                                      disabled={deleteShowtimeMutation.isPending}
+                                    >
                                       Delete
                                     </Button>
                                   </TableCell>
@@ -311,6 +456,13 @@ export default function MovieManagement() {
           movieId={selectedMovieId}
           isOpen={showAddShowtime}
           onClose={() => setShowAddShowtime(false)}
+        />
+      )}
+      {editingShowtime && (
+        <EditShowtimeDialog
+          showtime={editingShowtime}
+          isOpen={!!editingShowtime}
+          onClose={() => setEditingShowtime(null)}
         />
       )}
     </div>

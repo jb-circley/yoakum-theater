@@ -14,6 +14,8 @@ export interface IStorage {
   getShowtimes(): Promise<Showtime[]>;
   getShowtimesByMovie(movieId: number): Promise<Showtime[]>;
   createShowtime(showtime: InsertShowtime): Promise<Showtime>;
+  updateShowtime(id: number, showtime: Partial<InsertShowtime>): Promise<Showtime>;
+  deleteShowtime(id: number): Promise<void>;
   createContact(contact: InsertContact): Promise<Contact>;
 }
 
@@ -108,6 +110,23 @@ export class MemStorage implements IStorage {
     const showtime: Showtime = { ...insertShowtime, id };
     this.showtimes.set(id, showtime);
     return showtime;
+  }
+
+  async updateShowtime(id: number, update: Partial<InsertShowtime>): Promise<Showtime> {
+    const existing = this.showtimes.get(id);
+    if (!existing) {
+      throw new Error('Showtime not found');
+    }
+    const updated = { ...existing, ...update };
+    this.showtimes.set(id, updated);
+    return updated;
+  }
+
+  async deleteShowtime(id: number): Promise<void> {
+    if (!this.showtimes.has(id)) {
+      throw new Error('Showtime not found');
+    }
+    this.showtimes.delete(id);
   }
 
   async createContact(insertContact: InsertContact): Promise<Contact> {

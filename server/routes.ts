@@ -33,6 +33,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(201).json(showtime);
   });
 
+  app.patch("/api/showtimes/:id", async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const validatedData = insertShowtimeSchema.partial().parse(req.body);
+      const showtime = await storage.updateShowtime(id, validatedData);
+      res.json(showtime);
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : "Invalid request" });
+    }
+  });
+
+  app.delete("/api/showtimes/:id", async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      await storage.deleteShowtime(id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(404).json({ message: error instanceof Error ? error.message : "Showtime not found" });
+    }
+  });
+
   app.post("/api/contact", async (req, res) => {
     const validatedData = insertContactSchema.parse(req.body);
     const contact = await storage.createContact(validatedData);
