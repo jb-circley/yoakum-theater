@@ -39,6 +39,28 @@ interface AddShowtimeFormData {
   price: number;
 }
 
+function formatDate(date: string | Date | null): string {
+  try {
+    if (!date) return "Invalid date";
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    if (isNaN(dateObj.getTime())) return "Invalid date";
+    return format(dateObj, "MMM dd, yyyy");
+  } catch (e) {
+    return "Invalid date";
+  }
+}
+
+function formatTime(date: string | Date | null): string {
+  try {
+    if (!date) return "Invalid time";
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    if (isNaN(dateObj.getTime())) return "Invalid time";
+    return format(dateObj, "h:mm a");
+  } catch (e) {
+    return "Invalid time";
+  }
+}
+
 function AddShowtimeDialog({ 
   movieId, 
   isOpen, 
@@ -242,10 +264,10 @@ export default function MovieManagement() {
                               {showtimes.map((showtime) => (
                                 <TableRow key={showtime.id}>
                                   <TableCell>
-                                    {format(new Date(showtime.showtime), "MMM dd, yyyy")}
+                                    {formatDate(showtime.showtime)}
                                   </TableCell>
                                   <TableCell>
-                                    {format(new Date(showtime.showtime), "h:mm a")}
+                                    {formatTime(showtime.showtime)}
                                   </TableCell>
                                   <TableCell>
                                     ${showtime.price.toFixed(2)}
