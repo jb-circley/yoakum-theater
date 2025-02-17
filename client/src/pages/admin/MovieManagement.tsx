@@ -23,9 +23,19 @@ import { format } from "date-fns";
 
 function formatShowtime(dateStr: string | Date) {
   try {
+    // First log the incoming date string for debugging
+    console.log("Formatting date:", dateStr);
+
+    // If it's already a Date object, return it
+    if (dateStr instanceof Date) {
+      return isNaN(dateStr.getTime()) ? null : dateStr;
+    }
+
+    // Try parsing the string
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) {
-      return "Invalid date";
+      console.error("Invalid date format:", dateStr);
+      return null;
     }
     return date;
   } catch (e) {
@@ -49,6 +59,9 @@ export default function MovieManagement() {
   if (moviesLoading) {
     return <div>Loading movies...</div>;
   }
+
+  // Debug log for showtimes data
+  console.log("Showtimes data:", showtimes);
 
   return (
     <div className="space-y-8">
@@ -106,6 +119,10 @@ export default function MovieManagement() {
                         </Button>
                         {showtimesLoading ? (
                           <div>Loading showtimes...</div>
+                        ) : !showtimes?.length ? (
+                          <div className="text-center py-4 text-muted-foreground">
+                            No showtimes scheduled for this movie.
+                          </div>
                         ) : (
                           <Table>
                             <TableHeader>
@@ -117,9 +134,12 @@ export default function MovieManagement() {
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {showtimes?.map((showtime) => {
+                              {showtimes.map((showtime) => {
                                 const date = formatShowtime(showtime.showtime);
-                                if (!date) return null;
+                                if (!date) {
+                                  console.error("Invalid showtime:", showtime);
+                                  return null;
+                                }
 
                                 return (
                                   <TableRow key={showtime.id}>
