@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { type Movie } from "@shared/schema";
-import { Clock, Star } from "lucide-react";
+import { Clock, Star, Play } from "lucide-react";
 
 interface MovieCardProps {
   movie: Movie;
@@ -33,7 +33,17 @@ export default function MovieCard({ movie, onShowtimes }: MovieCardProps) {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="p-4 pt-0">
+      <CardFooter className="p-4 pt-0 flex flex-col gap-2">
+        {movie.trailerUrl && (
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => window.open(movie.trailerUrl, '_blank')}
+          >
+            <Play className="h-4 w-4 mr-2" />
+            Watch Trailer
+          </Button>
+        )}
         <Button onClick={onShowtimes} className="w-full">
           View Showtimes
         </Button>
