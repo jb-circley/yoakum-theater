@@ -61,6 +61,11 @@ function formatTime(date: string | Date | null): string {
   }
 }
 
+function formatPrice(price: number | null | undefined): string {
+  if (typeof price !== 'number') return "$0.00";
+  return `$${price.toFixed(2)}`;
+}
+
 function AddShowtimeDialog({ 
   movieId, 
   isOpen, 
@@ -270,7 +275,7 @@ export default function MovieManagement() {
                                     {formatTime(showtime.showtime)}
                                   </TableCell>
                                   <TableCell>
-                                    ${showtime.price.toFixed(2)}
+                                    {formatPrice(showtime.price)}
                                   </TableCell>
                                   <TableCell className="text-right space-x-2">
                                     <Button variant="outline" size="sm">
