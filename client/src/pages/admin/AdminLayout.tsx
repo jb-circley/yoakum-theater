@@ -15,7 +15,6 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 const navItems = [
   { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
   { name: "Movies", path: "/admin/movies", icon: Film },
-  { name: "Showtimes", path: "/admin/showtimes", icon: Calendar },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

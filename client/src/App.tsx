@@ -11,7 +11,6 @@ import Contact from "@/pages/Contact";
 import AdminLayout from "@/pages/admin/AdminLayout";
 import Dashboard from "@/pages/admin/Dashboard";
 import MovieManagement from "@/pages/admin/MovieManagement";
-import ShowtimeManagement from "@/pages/admin/ShowtimeManagement";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -27,11 +26,6 @@ function Router() {
         <Route path="/admin/movies">
           <AdminLayout>
             <MovieManagement />
-          </AdminLayout>
-        </Route>
-        <Route path="/admin/showtimes">
-          <AdminLayout>
-            <ShowtimeManagement />
           </AdminLayout>
         </Route>
 
