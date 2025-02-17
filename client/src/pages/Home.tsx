@@ -38,10 +38,10 @@ export default function Home() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold mb-6">Now Showing</h2>
+        <h2 className="text-2xl font-semibold mb-6 text-center">Now Showing</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
           {movies?.filter(m => !m.isComingSoon).map((movie) => (
-            <div key={movie.id} className="max-w-[300px] mx-auto w-full">
+            <div key={movie.id} className="w-full max-w-[300px]">
               <MovieCard
                 movie={movie}
                 onShowtimes={() => handleShowtimes(movie.id)}
@@ -52,12 +52,11 @@ export default function Home() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold mb-6">Coming Soon</h2>
+        <h2 className="text-2xl font-semibold mb-6 text-center">Coming Soon</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
           {movies?.filter(m => m.isComingSoon).map((movie) => (
-            <div key={movie.id} className="max-w-[300px] mx-auto w-full">
+            <div key={movie.id} className="w-full max-w-[300px]">
               <MovieCard
-                key={movie.id}
                 movie={movie}
                 onShowtimes={() => {}}
               />

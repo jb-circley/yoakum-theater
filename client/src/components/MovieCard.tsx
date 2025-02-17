@@ -28,7 +28,7 @@ export default function MovieCard({ movie, onShowtimes }: MovieCardProps) {
 
   return (
     <>
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden w-full">
         <CardHeader className="p-0">
           <div className="aspect-[2/3] relative">
             <img
@@ -38,9 +38,9 @@ export default function MovieCard({ movie, onShowtimes }: MovieCardProps) {
             />
           </div>
         </CardHeader>
-        <CardContent className="p-4">
+        <CardContent className="p-4 text-center">
           <h3 className="text-lg font-semibold mb-2">{movie.title}</h3>
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Clock className="h-4 w-4" />
               <span>{movie.duration} min</span>
